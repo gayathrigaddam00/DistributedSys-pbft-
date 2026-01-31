@@ -1,0 +1,6 @@
+pbft:
+  nodeId: n6
+
+grpc:
+  server:
+    port: 50056

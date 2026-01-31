@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package pbft;
+
+option java_package = "com.pbft.pbft.proto";
+option java_outer_classname = "PbftProtos";
+option java_multiple_files = true;
+
+
+enum AttackMode {
+  NONE = 0;
+  CRASH = 1;
+  TIMING = 2;
+  IN_DARK = 3;
+  INVALID_SIGNATURE = 4;
+  EQUIVOCATION = 5;
+}
+
+service PbftNode {
+  rpc ClientRequest(Request) returns (stream Reply);
+
+  rpc PrePrepare(PrePrepareMsg) returns (Ack);
+  rpc Prepare(PrepareMsg) returns (Ack);
+  rpc PrepareCertificate(PrepareCertificateMsg) returns (Ack);
+  rpc Commit(CommitMsg) returns (Ack);
+  rpc CommitCertificate(CommitCertificateMsg) returns (Ack);
+  rpc ViewChange(ViewChangeMsg) returns (Ack);
+  rpc NewView(NewViewMsg) returns (Ack);
+
+  rpc SetNodeStatus(NodeStatus) returns (Ack);
+  rpc FlushState(FlushRequest) returns (Ack);
+  rpc PrintDB(PrintRequest) returns (PrintDBResponse);
+  rpc PrintStatus(PrintStatusRequest) returns (PrintStatusResponse);
+  rpc PrintView(PrintRequest) returns (PrintViewResponse);
+  rpc PrintLog(PrintRequest) returns (PrintLogResponse);
+
+  rpc SetAttackMode(SetAttackModeRequest) returns (Ack);
+  rpc SetDarkTargets(SetDarkTargetsRequest) returns (Ack);
+  rpc SetEquivocationTargets(SetEquivocationTargetsRequest) returns (Ack);
+}
+
+message Request {
+  string client_id = 1;
+  int64 timestamp = 2;
+  string operation = 3;
+  string sender = 4;
+  string receiver = 5;
+  int32 amount = 6;
+  bytes signature = 7;
+}
+
+message Reply {
+  int32 view = 1;
+  int64 timestamp = 2;
+  string client_id = 3;
+  string node_id = 4;
+  string result = 5;
+  bytes signature = 6;
+}
+
+message PrePrepareMsg {
+  int32 view = 1;
+  int64 sequence_number = 2;
+  bytes digest = 3;
+  Request request = 4;
+  string node_id = 5;
+  bytes signature = 6;
+}
+
+message PrepareMsg {
+  int32 view = 1;
+  int64 sequence_number = 2;
+  bytes digest = 3;
+  string node_id = 4;
+  bytes signature = 5;
+}
+
+message PrepareCertificateMsg {
+  int32 view = 1;
+  int64 sequence_number = 2;
+  bytes digest = 3;
+  repeated PrepareMsg prepares = 4;
+  string collector_id = 5;
+  bytes signature = 6;
+}
+
+message CommitMsg {
+  int32 view = 1;
+  int64 sequence_number = 2;
+  bytes digest = 3;
+  string node_id = 4;
+  bytes signature = 5;
+}
+
+message CommitCertificateMsg {
+  int32 view = 1;
+  int64 sequence_number = 2;
+  bytes digest = 3;
+  repeated CommitMsg commits = 4;
+  string collector_id = 5;
+  bytes signature = 6;
+}
+
+message ViewChangeMsg {
+  int32 new_view = 1;
+  string node_id = 2;
+  repeated PreparedCertificate prepared_certs = 3;
+  bytes signature = 4;
+}
+
+message PreparedCertificate {
+  int64 sequence_number = 1;
+  bytes digest = 2;
+  int32 view = 3;
+}
+
+message NewViewMsg {
+  int32 view = 1;
+  repeated ViewChangeMsg view_changes = 2;
+  repeated PrePrepareMsg pre_prepares = 3;
+  string node_id = 4;
+  bytes signature = 5;
+}
+
+message Ack {
+  bool success = 1;
+  string message = 2;
+}
+
+message SetAttackModeRequest {
+  AttackMode mode = 1;
+}
+
+message NodeStatus {
+  bool is_live = 1;
+}
+
+message FlushRequest {
+}
+
+message PrintRequest {
+}
+
+message PrintDBResponse {
+  map<string, int32> db = 1;
+}
+
+message PrintStatusRequest {
+  int64 sequence_number = 1;
+}
+
+message PrintStatusResponse {
+  string status = 1;
+}
+
+message PrintViewResponse {
+  string placeholder = 1;
+}
+
+message PrintLogResponse {
+  repeated string log_entries = 1;
+}
+
+message SetDarkTargetsRequest {
+  repeated string target_node_ids = 1;
+}
+message SetEquivocationTargetsRequest {
+  repeated string target_node_ids = 1;
+}

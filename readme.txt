@@ -1,3 +1,4 @@
+
 # Distributed Banking System (Linear PBFT)
 
 A Byzantine Fault-Tolerant (BFT) distributed banking application built with **Java Spring Boot** and **gRPC**. This system implements the **Linear PBFT** consensus protocol to ensure data consistency and integrity even in the presence of malicious (Byzantine) nodes.
